@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memorama: Estilos de Liderazgo de Goleman</title>
+    <style>
+        :root {
+            --primary-color: #1e3a8a; /* Azul profundo profesional */
+            --secondary-color: #3b82f6; /* Azul vibrante */
+            --accent-color: #10b981; /* Verde éxito */
+            --danger-color: #ef4444; /* Rojo peligro/error */
+            --bg-color: #f0fdf4; /* Fondo claro amigable */
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            background: var(--card-bg);
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            font-weight: bold;
+            font-size: 1.2rem;
+            border: 2px solid #e5e7eb;
+        }
+
+        .intentos-text {
+            color: var(--danger-color);
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 550px;
+            width: 100%;
+            perspective: 1000px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            aspect-ratio: 1 / 1;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.1s;
+        }
+
+        .card:active {
+            transform: scale(0.95);
+        }
+
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .card.flip .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card.matched .card-inner {
+            transform: rotateY(180deg);
+            box-shadow: 0 0 15px var(--accent-color);
+        }
+
+        .card-front, .card-back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            padding: 10px;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .card-front::after {
+            content: '?';
+            opacity: 0.8;
+        }
+
+        .card-back {
+            background-color: var(--card-bg);
+            transform: rotateY(180deg);
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            border: 3px solid var(--secondary-color);
+            flex-direction: column;
+            word-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .emoji {
+            font-size: 3.5rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .modal-content p {
+            font-size: 1.1rem;
+            color: #4b5563;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.4rem; }
+            .stats { font-size: 1rem; padding: 10px 15px; }
+            .game-board { gap: 8px; }
+            .card-back { font-size: 0.8rem; padding: 5px; }
+            .emoji { font-size: 2.2rem; }
+            .card-front { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Los Estilos de Liderazgo de Goleman</h1>
+        <div class="stats">
+            <span>Pares: <span id="score">0</span>/8</span>
+            <span class="intentos-text">Intentos: <span id="attempts">20</span></span>
+        </div>
+    </div>
+
+    <div class="game-board" id="game-board"></div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">¡Felicidades!</h2>
+            <p id="modal-message">Has dominado los conceptos.</p>
+            <button class="btn" onclick="iniciarJuego()">Volver a Jugar</button>
+        </div>
+    </div>
+
+    <script>
+        // Los 6 estilos principales de Goleman + 2 conceptos clave para completar los 8 pares
+        const conceptos = [
+            { id: 1, text: "Líder Coercitivo", icon: "🪖" }, // Exige cumplimiento inmediato
+            { id: 2, text: "Líder Visionario", icon: "🔭" }, // Moviliza a las personas hacia una visión
+            { id: 3, text: "Líder Afiliativo", icon: "🤝" }, // Crea armonía y lazos emocionales
+            { id: 4, text: "Líder Democrático", icon: "🗳️" }, // Crea consenso mediante la participación
+            { id: 5, text: "Líder Timonel", icon: "⏱️" },    // Espera excelencia y autonomía (Marcapasos)
+            { id: 6, text: "Líder Coach", icon: "🌱" },      // Desarrolla a las personas para el futuro
+            { id: 7, text: "Liderazgo Resonante", icon: "🌊" },// Clima emocional positivo
+            { id: 8, text: "I. Emocional", icon: "🧠" }       // Base del liderazgo efectivo
+        ];
+
+        const MAX_INTENTOS = 20;
+        let intentos = MAX_INTENTOS;
+        let paresEncontrados = 0;
+        let primeraCarta = null;
+        let segundaCarta = null;
+        let tableroBloqueado = false; // Evita clics múltiples mientras se voltean cartas
+
+        const board = document.getElementById('game-board');
+        const attemptsEl = document.getElementById('attempts');
+        const scoreEl = document.getElementById('score');
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+
+        function iniciarJuego() {
+            // Reiniciar estado
+            board.innerHTML = '';
+            intentos = MAX_INTENTOS;
+            paresEncontrados = 0;
+            primeraCarta = null;
+            segundaCarta = null;
+            tableroBloqueado = false;
+            
+            attemptsEl.innerText = intentos;
+            scoreEl.innerText = paresEncontrados;
+            modal.style.display = 'none';
+
+            // Crear el mazo de 16 cartas (Mitad concepto en texto, mitad imagen/emoji)
+            let mazo = [];
+            conceptos.forEach(item => {
+                mazo.push({ id: item.id, content: `<span>${item.text}</span>` });
+                mazo.push({ id: item.id, content: `<span class="emoji">${item.icon}</span>` });
+            });
+
+            // Barajar aleatoriamente usando algoritmo Fisher-Yates simplificado
+            mazo.sort(() => 0.5 - Math.random());
+
+            // Renderizar cartas en el DOM
+            mazo.forEach(carta => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                cardElement.dataset.id = carta.id; // Guardamos el ID para verificar coincidencias
+                cardElement.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front"></div>
+                        <div class="card-back">${carta.content}</div>
+                    </div>
+                `;
+                cardElement.addEventListener('click', voltearCarta);
+                board.appendChild(cardElement);
+            });
+        }
+
+        function voltearCarta() {
+            // Reglas de bloqueo: no hacer nada si el tablero está bloqueado, 
+            // si la carta ya fue encontrada, o si es la misma carta que ya volteé.
+            if (tableroBloqueado) return;
+            if (this.classList.contains('matched')) return;
+            if (this === primeraCarta) return;
+
+            // Voltear visualmente
+            this.classList.add('flip');
+
+            // Si es la primera carta que volteo en el turno
+            if (!primeraCarta) {
+                primeraCarta = this;
+                return;
+            }
+
+            // Si es la segunda carta
+            segundaCarta = this;
+            intentos--; // Restar intento solo cuando se voltea un par
+            attemptsEl.innerText = intentos;
+
+            verificarCoincidencia();
+        }
+
+        function verificarCoincidencia() {
+            let esCoincidencia = primeraCarta.dataset.id === segundaCarta.dataset.id;
+
+            if (esCoincidencia) {
+                // Es par correcto
+                primeraCarta.classList.add('matched');
+                segundaCarta.classList.add('matched');
+                
+                // Remover eventos para que no se puedan volver a clickear
+                primeraCarta.removeEventListener('click', voltearCarta);
+                segundaCarta.removeEventListener('click', voltearCarta);
+                
+                paresEncontrados++;
+                scoreEl.innerText = paresEncontrados;
+                resetearTablero();
+
+                // Verificar condición de victoria o derrota
+                if (paresEncontrados === 8) {
+                    finalizarJuego(true);
+                } else if (intentos === 0) {
+                    finalizarJuego(false);
+                }
+
+            } else {
+                // No es par
+                if (intentos === 0) {
+                    // Se acabaron los intentos
+                    desvoltearCartas();
+                    finalizarJuego(false);
+                } else {
+                    // Voltear de regreso después de 1 segundo
+                    desvoltearCartas();
+                }
+            }
+        }
+
+        function desvoltearCartas() {
+            tableroBloqueado = true; // Bloquea la pantalla
+            setTimeout(() => {
+                primeraCarta.classList.remove('flip');
+                segundaCarta.classList.remove('flip');
+                resetearTablero();
+            }, 1200); // 1.2 segundos para memorizar
+        }
+
+        function resetearTablero() {
+            [primeraCarta, segundaCarta] = [null, null];
+            tableroBloqueado = false;
+        }
+
+        function finalizarJuego(victoria) {
+            tableroBloqueado = true;
+            setTimeout(() => {
+                if (victoria) {
+                    modalTitle.innerText = "¡Felicidades! 🎉";
+                    modalTitle.style.color = "var(--accent-color)";
+                    modalMessage.innerHTML = "Has completado todos los pares exitosamente.<br><br><b>¡Tienes un excelente entendimiento del liderazgo de Goleman!</b>";
+                } else {
+                    modalTitle.innerText = "Juego Terminado";
+                    modalTitle.style.color = "var(--danger-color)";
+                    modalMessage.innerText = "Te has quedado sin intentos. ¡La resiliencia es clave en el liderazgo, inténtalo de nuevo!";
+                }
+                modal.style.display = 'flex';
+            }, 800); // Pequeño retraso para ver la última carta
+        }
+
+        // Iniciar el juego automáticamente al cargar la página
+        iniciarJuego();
+    </script>
+</body>
+</html>
